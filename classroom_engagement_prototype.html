@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EduSense — Classroom Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lora:wght@600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f2ea;           /* warm paper background */
+  --white:#fffdf9;        /* soft warm white */
+  --surface:#fbf7f2;      /* warm card surface */
+  --border:#e7dccf;       /* warm beige border */
+  --border2:#d8c9b8;
+
+  --text:#2f2a24;         /* slightly warm dark text */
+  --muted:#7c6f63;
+  --hint:#b8a99a;
+
+  --blue:#3a6ea8;
+  --blue-bg:#eef4fb;
+
+  --green:#2f7d57;
+  --green-bg:#edf6f1;
+
+  --amber:#8a6100;
+  --amber-bg:#fff4e1;
+
+  --red:#b23b3b;
+  --red-bg:#fdeeee;
+
+  --purple:#5a3e8a;
+  --purple-bg:#f5f0ff;
+
+  --radius:14px;
+  --radius-sm:10px;
+
+  --shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+html{scroll-behavior:smooth}
+body{
+  background: linear-gradient(180deg, #f7f2ea 0%, #f3ece2 100%);
+  color:var(--text);
+  font-family:var(--font);
+  font-size:14px;
+  min-height:100vh;
+  display:flex;
+}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+.sidebar{
+  width:220px;flex-shrink:0;
+  background:var(--white);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  padding:0 0 20px;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid var(--border)}
+.logo-mark{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.logo-icon{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,#3a6ea8,#2e7d5e);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:14px;font-weight:700;
+}
+.logo-name{font-family:var(--font-display);font-size:1.15rem;color:var(--text)}
+.logo-name span{color:var(--blue)}
+.logo-sub{font-size:11px;color:var(--hint);letter-spacing:0.03em}
+.nav-group{padding:14px 10px 0}
+.nav-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--hint);padding:0 10px 6px}
+.nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 12px;border-radius:var(--radius-sm);
+  font-size:13.5px;font-weight:600;color:var(--muted);
+  cursor:pointer;transition:background 0.15s,color 0.15s;margin-bottom:2px;
+}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{background:var(--blue-bg);color:var(--blue)}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:background 0.15s}
+.nav-item.active .nav-dot{background:var(--blue)}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px}
+.sidebar-bottom{margin-top:auto;padding:14px 14px 0;border-top:1px solid var(--border)}
+.teacher-chip{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+}
+.t-avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--blue-bg);border:1.5px solid var(--blue-border);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:12px;color:var(--blue);flex-shrink:0;
+}
+.t-name{font-size:13px;font-weight:700;color:var(--text)}
+.t-role{font-size:11px;color:var(--muted);margin-top:1px}
+
+.main{flex:1;padding:28px 30px;max-width:1100px;overflow-x:hidden}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
+.greeting{font-family:var(--font-display);font-size:1.5rem;color:var(--text)}
+.date-sub{font-size:12.5px;color:var(--muted);margin-top:3px}
+.topbar-actions{display:flex;align-items:center;gap:10px;margin-top:4px}
+.btn{
+  padding:8px 16px;border-radius:var(--radius-sm);
+  font-family:var(--font);font-size:13px;font-weight:700;
+  cursor:pointer;border:none;transition:all 0.15s;
+}
+.btn:hover{transform:translateY(-1px);filter:brightness(0.95)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(58,110,168,0.25)}
+.btn-outline{background:var(--white);color:var(--text);border:1px solid var(--border2)}
+.class-pill{
+  background:var(--white);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);padding:8px 14px;
+  font-family:var(--font);font-size:13px;font-weight:600;color:var(--text);
+  cursor:pointer;outline:none;
+}
+.live-strip{
+  background:var(--green-bg);border:1px solid var(--green-border);
+  border-radius:var(--radius-sm);padding:11px 16px;
+  display:flex;align-items:center;gap:10px;margin-bottom:20px;
+}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.live-text{font-size:13px;color:var(--green);font-weight:600;flex:1}
+.live-text span{color:var(--muted);font-weight:400}
+.live-clock{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;
+  box-shadow:var(--shadow);transition:transform 0.15s,box-shadow 0.15s;cursor:default;
+}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.09)}
+.stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:12px}
+.stat-label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px}
+.stat-num{font-family:var(--font-display);font-size:2rem;font-weight:600;line-height:1;margin-bottom:5px}
+.stat-delta{font-size:11.5px;color:var(--muted)}
+.stat-delta.up{color:var(--green)}
+.stat-delta.down{color:var(--red)}
+.content-grid{display:grid;grid-template-columns:1fr 320px;gap:18px}
+.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.panel-title{font-size:14.5px;font-weight:700;color:var(--text)}
+.panel-sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.pill-btn{font-size:11.5px;font-weight:700;padding:5px 11px;background:var(--bg);border:1px solid var(--border2);border-radius:99px;cursor:pointer;color:var(--muted);transition:background 0.15s}
+.pill-btn:hover{background:var(--border)}
+.search-wrap{position:relative;margin-bottom:14px}
+.search-wrap input{
+  width:100%;background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:9px 12px 9px 34px;
+  font-family:var(--font);font-size:13px;color:var(--text);outline:none;transition:border-color 0.15s;
+}
+.search-wrap input:focus{border-color:var(--blue)}
+.search-wrap input::placeholder{color:var(--hint)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--hint)}
+.student-list{display:flex;flex-direction:column;gap:7px}
+.stu-row{
+  display:flex;align-items:center;gap:11px;padding:11px 13px;
+  border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);
+  cursor:pointer;transition:border-color 0.15s,background 0.15s;
+}
+.stu-row:hover{border-color:var(--border2);background:var(--bg)}
+.stu-row.at-risk{border-color:var(--amber-border);background:var(--amber-bg)}
+.stu-row.at-risk:hover{border-color:#ddb84a}
+.stu-avatar{width:33px;height:33px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0}
+.stu-name{font-size:13.5px;font-weight:700;color:var(--text)}
+.stu-roll{font-size:11px;color:var(--muted);margin-top:1px}
+.stu-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;margin-left:auto}
+.status-tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:3px 8px;border-radius:99px}
+.status-tag.present{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.status-tag.late{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.status-tag.absent{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.eng-row{display:flex;align-items:center;gap:6px}
+.eng-track{width:58px;height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.eng-fill{height:100%;border-radius:99px;transition:width 0.4s}
+.eng-pct{font-size:11px;color:var(--muted);min-width:26px;text-align:right}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+.hm-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-top:10px}
+.hm-cell{aspect-ratio:1;border-radius:4px;cursor:default;transition:transform 0.1s}
+.hm-cell:hover{transform:scale(1.25)}
+.hm-times{display:flex;justify-content:space-between;font-size:10px;color:var(--hint);margin-top:4px}
+.right-col{display:flex;flex-direction:column;gap:16px}
+.gauge-panel{text-align:center;padding:22px 20px 18px}
+.gauge-score{font-family:var(--font-display);font-size:2.8rem;color:var(--green);margin:6px 0 2px}
+.gauge-sub{font-size:12px;color:var(--muted)}
+.breakdown{margin-top:16px;display:flex;flex-direction:column;gap:9px}
+.bd-row{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.bd-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.bd-label{flex:1;color:var(--muted)}
+.bd-bar-wrap{width:60px;height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.bd-bar{height:100%;border-radius:99px}
+.bd-count{font-weight:700;color:var(--text);min-width:18px;text-align:right}
+.alert-list{display:flex;flex-direction:column;gap:8px}
+.alert-card{display:flex;gap:10px;padding:11px 13px;border-radius:var(--radius-sm);border-left:3px solid;font-size:12.5px}
+.alert-card.crit{background:var(--red-bg);border-color:var(--red)}
+.alert-card.warn{background:var(--amber-bg);border-color:var(--amber)}
+.alert-card.info{background:var(--blue-bg);border-color:var(--blue)}
+.alert-emoji{font-size:14px;flex-shrink:0;margin-top:1px}
+.alert-msg{color:var(--text);line-height:1.5}
+.alert-msg strong{font-weight:700}
+.alert-time{font-size:11px;color:var(--muted);margin-top:3px}
+.quiz-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:12.5px}
+.quiz-item:last-child{border-bottom:none}
+.quiz-q{font-weight:600;color:var(--text);margin-bottom:2px}
+.quiz-meta{font-size:11px;color:var(--muted)}
+.quiz-score{font-weight:700;font-size:14px}
+.note-banner{
+  background:var(--purple-bg);border:1px solid var(--purple-border);
+  border-radius:var(--radius-sm);padding:12px 16px;
+  font-size:12.5px;color:var(--purple);margin-bottom:20px;
+  display:flex;gap:8px;align-items:flex-start;line-height:1.5;
+}
+.note-banner strong{font-weight:700}
+
+/* Modals */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(46,42,37,0.45);z-index:999;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);padding:26px 28px;width:400px;max-width:94vw;
+  box-shadow:0 8px 30px rgba(0,0,0,0.12);animation:popIn 0.2s ease both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(0.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-name{font-family:var(--font-display);font-size:1.25rem;color:var(--text);margin-bottom:2px}
+.modal-roll{font-size:12px;color:var(--muted);margin-bottom:18px}
+.modal-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px}
+.modal-stat{background:var(--bg);border-radius:var(--radius-sm);padding:12px;text-align:center}
+.ms-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:5px}
+.ms-val{font-size:1.2rem;font-family:var(--font-display);color:var(--text)}
+.modal-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:8px}
+.eng-bar-big-wrap{height:8px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:5px}
+.eng-bar-big{height:100%;border-radius:99px;transition:width 0.5s}
+.obs-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.obs-tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--bg);border:1px solid var(--border2);color:var(--muted)}
+.modal-close{width:100%;padding:10px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:var(--font);font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+.modal-close:hover{background:var(--border)}
+.form-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;display:block}
+.form-input{
+  width:100%;background:var(--bg);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);padding:9px 13px;
+  font-family:var(--font);font-size:13px;color:var(--text);
+  outline:none;margin-bottom:10px;transition:border-color 0.15s;
+}
+.form-input:focus{border-color:var(--blue)}
+.form-input::placeholder{color:var(--hint)}
+.success-note{font-size:13px;color:var(--green);font-weight:600;margin-top:12px;display:none;text-align:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinning{display:inline-block;animation:spin 1.2s linear infinite}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">E</div>
+      <div class="logo-name">Edu<span>Sense</span></div>
+    </div>
+    <div class="logo-sub">Classroom Intelligence System</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Main</div>
+    <div class="nav-item active" onclick="setNav(this)"><div class="nav-dot"></div>Dashboard</div>
+    <div class="nav-item" onclick="setNav(this)"><div class="nav-dot"></div>Students</div>
+    <div class="nav-item" onclick="setNav(this)"><div class="nav-dot"></div>Attendance</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Analytics</div>
+    <div class="nav-item" onclick="setNav(this)"><div class="nav-dot"></div>Engagement</div>
+    <div class="nav-item" onclick="setNav(this)"><div class="nav-dot"></div>Quiz Results</div>
+    <div class="nav-item" onclick="setNav(this)"><div class="nav-dot"></div>Weekly Report</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">System</div>
+    <div class="nav-item" onclick="setNav(this)">
+      <div class="nav-dot"></div>Alerts
+      <span class="nav-badge" id="alertBadge">3</span>
+    </div>
+    <div class="nav-item" onclick="setNav(this)"><div class="nav-dot"></div>Settings</div>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="teacher-chip">
+      <div class="t-avatar">MS</div>
+      <div>
+        <div class="t-name">Ms. Sharma</div>
+        <div class="t-role">CS-301 · Section A</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="main">
+
+  
+
+  <div class="topbar">
+    <div>
+      <div class="greeting">Good morning, Ms. Sharma 👋</div>
+      <div class="date-sub">Thursday, April 3 · Period 3 · CS-301 Algorithms · Room 204</div>
+    </div>
+    <div class="topbar-actions">
+      <select class="class-pill">
+        <option>CS-301 — Algorithms</option>
+        <option>CS-401 — AI &amp; ML</option>
+        <option>CS-201 — Data Structures</option>
+      </select>
+      <button class="btn btn-outline" onclick="openQuiz()">📋 Start Quiz</button>
+      <button class="btn btn-primary" id="scanBtn" onclick="doScan()">🎥 Scan Room</button>
+    </div>
+  </div>
+
+  <div class="live-strip">
+    <div class="live-dot"></div>
+    <div class="live-text">
+      Live session active · Facial recognition ON ·
+      <span>Last scan: 42 seconds ago · Sentiment: Neutral–Positive</span>
+    </div>
+    <div class="live-clock" id="clock">10:15:33</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--blue-bg)">👥</div>
+      <div class="stat-label">Present Today</div>
+      <div class="stat-num" style="color:var(--blue)">32</div>
+      <div class="stat-delta up">↑ 2 more than last class</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--green-bg)">📈</div>
+      <div class="stat-label">Avg Engagement</div>
+      <div class="stat-num" style="color:var(--green)">74%</div>
+      <div class="stat-delta up">↑ 6% vs last week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--amber-bg)">⚠️</div>
+      <div class="stat-label">Need Attention</div>
+      <div class="stat-num" style="color:var(--amber)">3</div>
+      <div class="stat-delta down">1 new alert this session</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--red-bg)">🔔</div>
+      <div class="stat-label">Absent</div>
+      <div class="stat-num" style="color:var(--red)">4</div>
+      <div class="stat-delta">Out of 36 enrolled</div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Student Engagement Monitor</div>
+          <div class="panel-sub">Click any student card to view their full profile</div>
+        </div>
+        <button class="pill-btn" onclick="sortToggle()">Sort by risk ↕</button>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input placeholder="Search by name or roll number…" id="searchInput" oninput="filterStudents()"/>
+      </div>
+      <div class="student-list" id="studentList"></div>
+
+      <hr class="divider"/>
+
+      <div style="margin-bottom:6px">
+        <div class="panel-title" style="font-size:13px">Engagement Heatmap — Last 12 Minutes</div>
+        <div class="panel-sub">Hover a cell to see the timestamp reading</div>
+      </div>
+      <div class="hm-grid" id="hmGrid"></div>
+      <div class="hm-times"><span>10:03</span><span>10:09</span><span>10:15</span></div>
+    </div>
+
+    <div class="right-col">
+
+      <div class="panel gauge-panel">
+        <div class="panel-title">Class Engagement Score</div>
+        <div class="gauge-score">74%</div>
+        <div class="gauge-sub">Average across 32 present students</div>
+        <div class="breakdown">
+          <div class="bd-row">
+            <div class="bd-dot" style="background:var(--green)"></div>
+            <div class="bd-label">Highly engaged</div>
+            <div class="bd-bar-wrap"><div class="bd-bar" style="width:44%;background:var(--green)"></div></div>
+            <div class="bd-count">14</div>
+          </div>
+          <div class="bd-row">
+            <div class="bd-dot" style="background:var(--blue)"></div>
+            <div class="bd-label">Moderate</div>
+            <div class="bd-bar-wrap"><div class="bd-bar" style="width:31%;background:var(--blue)"></div></div>
+            <div class="bd-count">10</div>
+          </div>
+          <div class="bd-row">
+            <div class="bd-dot" style="background:var(--amber)"></div>
+            <div class="bd-label">Low engagement</div>
+            <div class="bd-bar-wrap"><div class="bd-bar" style="width:16%;background:var(--amber)"></div></div>
+            <div class="bd-count">5</div>
+          </div>
+          <div class="bd-row">
+            <div class="bd-dot" style="background:var(--red)"></div>
+            <div class="bd-label">At risk</div>
+            <div class="bd-bar-wrap"><div class="bd-bar" style="width:9%;background:var(--red)"></div></div>
+            <div class="bd-count">3</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Live Alerts</div>
+          <button class="pill-btn" onclick="document.getElementById('alertBadge').textContent='0'">Clear all</button>
+        </div>
+        <div class="alert-list">
+          <div class="alert-card crit">
+            <div class="alert-emoji">🔴</div>
+            <div>
+              <div class="alert-msg"><strong>Riya Patel</strong> — engagement dropped to 18%. No quiz response in 8 min.</div>
+              <div class="alert-time">2 min ago</div>
+            </div>
+          </div>
+          <div class="alert-card warn">
+            <div class="alert-emoji">🟡</div>
+            <div>
+              <div class="alert-msg"><strong>Arjun Mehta</strong> — low participation for 3 classes in a row.</div>
+              <div class="alert-time">6 min ago</div>
+            </div>
+          </div>
+          <div class="alert-card warn">
+            <div class="alert-emoji">🟡</div>
+            <div>
+              <div class="alert-msg"><strong>Zara Khan</strong> — late arrival. 3rd time this month.</div>
+              <div class="alert-time">11 min ago</div>
+            </div>
+          </div>
+          <div class="alert-card info">
+            <div class="alert-emoji">🔵</div>
+            <div>
+              <div class="alert-msg">Quiz #2 completed by <strong>29/32</strong> students. Avg score: <strong>68%</strong>.</div>
+              <div class="alert-time">14 min ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Quiz #2 — Results</div></div>
+        <div class="quiz-item">
+          <div><div class="quiz-q">Q1: Time complexity of quicksort</div><div class="quiz-meta">29 responses</div></div>
+          <div class="quiz-score" style="color:var(--green)">82%</div>
+        </div>
+        <div class="quiz-item">
+          <div><div class="quiz-q">Q2: Binary search best case</div><div class="quiz-meta">27 responses</div></div>
+          <div class="quiz-score" style="color:var(--amber)">61%</div>
+        </div>
+        <div class="quiz-item">
+          <div><div class="quiz-q">Q3: Dijkstra's algorithm</div><div class="quiz-meta">24 responses</div></div>
+          <div class="quiz-score" style="color:var(--red)">48%</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- Student modal -->
+<div class="modal-overlay" id="stuModal" onclick="closeStu()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-name" id="mName">—</div>
+    <div class="modal-roll" id="mRoll">—</div>
+    <div class="modal-stats">
+      <div class="modal-stat"><div class="ms-label">Attendance</div><div class="ms-val" id="mAtt">—</div></div>
+      <div class="modal-stat"><div class="ms-label">Quiz Score</div><div class="ms-val" id="mQuiz">—</div></div>
+      <div class="modal-stat"><div class="ms-label">Avg Engage</div><div class="ms-val" id="mAvg">—</div></div>
+    </div>
+    <div class="modal-section-label">Live Engagement</div>
+    <div class="eng-bar-big-wrap"><div class="eng-bar-big" id="mEngBar"></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="mEngTxt">—</div>
+    <div class="modal-section-label">AI Observations</div>
+    <div class="obs-tags" id="mTags"></div>
+    <button class="modal-close" onclick="closeStu()">Close</button>
+  </div>
+</div>
+
+<!-- Quiz modal -->
+<div class="modal-overlay" id="quizModal" onclick="closeQuiz()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-name" style="margin-bottom:4px">Launch Quick Quiz</div>
+    <div style="font-size:12.5px;color:var(--muted);margin-bottom:18px">Instant poll — sent to all present students</div>
+    <label class="form-label">Question</label>
+    <input class="form-input" placeholder="Type your question here…"/>
+    <label class="form-label">Option A</label>
+    <input class="form-input" placeholder="Option A"/>
+    <label class="form-label">Option B</label>
+    <input class="form-input" placeholder="Option B"/>
+    <label class="form-label">Option C (optional)</label>
+    <input class="form-input" placeholder="Option C"/>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn btn-primary" style="flex:1" onclick="launchQuiz()">Send to 32 Students</button>
+      <button class="btn btn-outline" onclick="closeQuiz()">Cancel</button>
+    </div>
+    <div class="success-note" id="quizSuccess">✅ Quiz sent to all present students!</div>
+  </div>
+</div>
+
+<script>
+const students=[
+  {name:'Priya Singh',roll:'CS301-01',status:'present',eng:88,att:'94%',quiz:'82%',avg:'85%',tags:['Active participation','Quiz leader','Consistent attendance']},
+  {name:'Arjun Mehta',roll:'CS301-02',status:'present',eng:31,att:'71%',quiz:'45%',avg:'38%',tags:['Low participation','Missing quizzes','Needs follow-up']},
+  {name:'Riya Patel',roll:'CS301-03',status:'present',eng:18,att:'83%',quiz:'—',avg:'22%',tags:['Disengaged this session','No quiz response','Intervention suggested']},
+  {name:'Kabir Rao',roll:'CS301-04',status:'present',eng:92,att:'100%',quiz:'95%',avg:'91%',tags:['Highly engaged','Top performer','Perfect attendance']},
+  {name:'Aisha Nair',roll:'CS301-05',status:'present',eng:67,att:'89%',quiz:'70%',avg:'72%',tags:['Good participation','Improving trend']},
+  {name:'Dev Kapoor',roll:'CS301-06',status:'late',eng:54,att:'78%',quiz:'60%',avg:'58%',tags:['Late arrival','Moderate engagement']},
+  {name:'Zara Khan',roll:'CS301-07',status:'late',eng:49,att:'75%',quiz:'55%',avg:'50%',tags:['Repeated late arrivals','Needs attention']},
+  {name:'Rohan Joshi',roll:'CS301-08',status:'present',eng:76,att:'91%',quiz:'78%',avg:'77%',tags:['Steady performer','Good engagement']},
+  {name:'Meera Iyer',roll:'CS301-09',status:'absent',eng:0,att:'60%',quiz:'—',avg:'42%',tags:['Absent today','Low attendance','At risk']},
+  {name:'Sameer Gupta',roll:'CS301-10',status:'present',eng:83,att:'96%',quiz:'88%',avg:'84%',tags:['Active','Strong quiz performer']},
+];
+const avatarColors=['#3a6ea8','#2e7d5e','#8a6100','#b83232','#5a3e8a','#1a6b6b','#a05c1a','#3d6e3d','#6e3d6e','#1a5c8a'];
+function ec(v){return v>=75?'var(--green)':v>=50?'var(--blue)':v>=30?'var(--amber)':'var(--red)'}
+function el(v){return v>=75?'Highly engaged':v>=50?'Moderately engaged':v>=30?'Low engagement':'At risk — needs immediate attention'}
+let sorted=false,list=[...students];
+function renderList(arr){
+  const el=document.getElementById('studentList');
+  el.innerHTML='';
+  arr.forEach((s,i)=>{
+    const risk=s.eng<35&&s.status!=='absent';
+    const ini=s.name.split(' ').map(x=>x[0]).join('');
+    const d=document.createElement('div');
+    d.className='stu-row'+(risk?' at-risk':'');
+    d.innerHTML=`
+      <div class="stu-avatar" style="background:${avatarColors[i%avatarColors.length]}">${ini}</div>
+      <div style="flex:1;min-width:0">
+        <div class="stu-name">${s.name}${risk?' <span style="font-size:10.5px;color:var(--amber);font-weight:600">⚠ Needs attention</span>':''}</div>
+        <div class="stu-roll">${s.roll}</div>
+      </div>
+      <div class="stu-right">
+        <div class="status-tag ${s.status}">${s.status.charAt(0).toUpperCase()+s.status.slice(1)}</div>
+        <div class="eng-row">
+          <div class="eng-track"><div class="eng-fill" style="width:${s.eng}%;background:${ec(s.eng)}"></div></div>
+          <div class="eng-pct">${s.eng}%</div>
+        </div>
+      </div>`;
+    d.onclick=()=>openStu(s);
+    el.appendChild(d);
+  });
+}
+function filterStudents(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  renderList(list.filter(s=>s.name.toLowerCase().includes(q)||s.roll.toLowerCase().includes(q)));
+}
+function sortToggle(){
+  sorted=!sorted;
+  list=[...students].sort((a,b)=>sorted?a.eng-b.eng:b.eng-a.eng);
+  filterStudents();
+}
+function openStu(s){
+  document.getElementById('mName').textContent=s.name;
+  document.getElementById('mRoll').textContent=s.roll+' · '+s.status.charAt(0).toUpperCase()+s.status.slice(1);
+  document.getElementById('mAtt').textContent=s.att;
+  document.getElementById('mQuiz').textContent=s.quiz;
+  document.getElementById('mAvg').textContent=s.avg;
+  document.getElementById('mEngBar').style.cssText=`width:${s.eng}%;background:${ec(s.eng)}`;
+  document.getElementById('mEngTxt').textContent=s.eng+'% — '+el(s.eng);
+  document.getElementById('mTags').innerHTML=s.tags.map(t=>`<div class="obs-tag">${t}</div>`).join('');
+  document.getElementById('stuModal').classList.add('open');
+}
+function closeStu(){document.getElementById('stuModal').classList.remove('open')}
+function openQuiz(){document.getElementById('quizModal').classList.add('open')}
+function closeQuiz(){document.getElementById('quizModal').classList.remove('open');document.getElementById('quizSuccess').style.display='none'}
+function launchQuiz(){document.getElementById('quizSuccess').style.display='block';setTimeout(closeQuiz,2000)}
+function doScan(){
+  const b=document.getElementById('scanBtn');
+  b.innerHTML='<span class="spinning">⏳</span> Scanning…';b.disabled=true;
+  setTimeout(()=>{b.innerHTML='✅ Done';setTimeout(()=>{b.innerHTML='🎥 Scan Room';b.disabled=false},1400)},1800);
+}
+function setNav(el){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active')}
+function buildHeatmap(){
+  const g=document.getElementById('hmGrid');
+  [55,60,65,70,74,78,72,70,74,76,74,75].forEach((v,i)=>{
+    const c=document.createElement('div');
+    c.className='hm-cell';
+    const a=0.2+(v/100)*0.8;
+    c.style.background=v>=70?`rgba(46,125,94,${a})`:v>=55?`rgba(58,110,168,${a})`:`rgba(184,50,50,${a})`;
+    c.title=`10:0${3+Math.floor(i/2)} — ${v}% engagement`;
+    g.appendChild(c);
+  });
+}
+function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-IN',{hour12:false})}
+renderList(students);buildHeatmap();tick();setInterval(tick,1000);
+</script>
+</body>
+</html>
